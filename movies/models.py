@@ -16,7 +16,7 @@ class Movie(models.Model):
         (18, '18+')
     ]
 
-    title = models.CharField(max_length=100, verbose_name="Название")
+    title = models.CharField(max_length=100, verbose_name="Название фильма")
     summary = models.TextField(verbose_name="Аннотация")
     release_year = models.PositiveIntegerField(verbose_name="Год выхода")
     duration_minutes = models.PositiveIntegerField(verbose_name="Продолжительность")
