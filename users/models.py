@@ -6,6 +6,10 @@ class Subscription(models.Model):
     description = models.TextField(verbose_name="Что входит в подписку")
     price = models.PositiveIntegerField(verbose_name="Цена подписки")
 
+    class Meta:
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+
     def __str__(self):
         return self.name
 
@@ -14,6 +18,10 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     age = models.PositiveIntegerField(verbose_name="Возраст пользователя")
     subscription = models.ForeignKey(Subscription, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Подписка")
+
+    class Meta:
+        verbose_name = "Пользователь"
+        verbose_name_plural = "Пользователи"
 
     def __str__(self):
         return self.user.username
