@@ -45,7 +45,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             self.fields["user_id"].required = True
 
     def validate_age(self, value) -> int:
-        """Возрастъ"""
+        """Возраст"""
         if value <= 0:
             raise serializers.ValidationError("Возраст не может быть отрицательным или нулевым.")
         return value
