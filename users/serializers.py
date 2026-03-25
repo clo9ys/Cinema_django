@@ -45,20 +45,20 @@ class UserProfileSerializer(serializers.ModelSerializer):
             self.fields["user_id"].required = True
 
     def validate_age(self, value) -> int:
-        """Возрастъ"""
+        """Возраст"""
         if value <= 0:
             raise serializers.ValidationError("Возраст не может быть отрицательным или нулевым.")
         return value
 
-    def validate_profile(self, data) -> dict:
+    def validate(self, attrs) -> dict:
         """Один пользователь — один профиль"""
-        user = data.get("user")
+        user = attrs.get("user")
         exist = UserProfile.objects.filter(user=user)
         if self.instance:
             exist = exist.exclude(pk=self.instance.pk)
         if exist.exists():
             raise serializers.ValidationError("У этого пользователя уже есть профиль.")
-        return data
+        return attrs
 
 
 class WatchListSerializer(serializers.ModelSerializer):
@@ -90,20 +90,20 @@ class WatchListSerializer(serializers.ModelSerializer):
             self.fields["user_id"].required = True
             self.fields["movie_id"].required = True
 
-    def validate_watchlist(self, data) -> dict:
+    def validate(self, attrs) -> dict:
         """Пользователь + фильм в избранном не должны повторяться"""
-        user = data.get("user")
-        movie = data.get("movie")
+        user = attrs.get("user")
+        movie = attrs.get("movie")
         if self.instance:
             if user is None:
                 user = self.instance.user
             if movie is None:
                 movie = self.instance.movie
         if user is None or movie is None:
-            return data
+            return attrs
         exists = WatchList.objects.filter(user=user, movie=movie)
         if self.instance:
             exists = exists.exclude(pk=self.instance.pk)
         if exists.exists():
             raise serializers.ValidationError("Такая запись в избранном уже есть.")
-        return data
+        return attrs

@@ -42,6 +42,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
     ],
     'EXCEPTION_HANDLER': 'config.exceptions.custom_exception_handler',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 
 MIDDLEWARE = [
