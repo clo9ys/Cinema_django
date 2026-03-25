@@ -20,6 +20,7 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('movies.urls')),
+    path('api/', include('users.urls')),
 ]
 
 admin.site.site_header = 'Онлайн-кинотеатр "Джанго освобожденный"'
