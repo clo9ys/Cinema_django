@@ -1,8 +1,34 @@
 from django.contrib.auth.models import User
-from rest_framework import serializers
-from movies.models import Movie
 from movies.serializers import MovieSerializer
-from .models import Subscription, UserProfile, WatchList
+from .models import Subscription, UserProfile
+from rest_framework import serializers
+from .models import WatchList
+from movies.models import Movie
+
+
+class WatchListSerializer(serializers.ModelSerializer):
+    movie_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = WatchList
+        fields = ['id', 'movie_id', 'added_at']
+        read_only_fields = ['id', 'added_at']
+
+    def validate_movie_id(self, value):
+        """существует ли фильм с таким id"""
+        if not Movie.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Фильм с таким id не существует")
+        return value
+
+    def validate(self, data):
+        """не добавлен ли уже фильм в избранное"""
+        user = self.context['request'].user
+        movie_id = data.get('movie_id')
+
+        if WatchList.objects.filter(user=user, movie_id=movie_id).exists():
+            raise serializers.ValidationError("Этот фильм уже в вашем избранном")
+
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):
