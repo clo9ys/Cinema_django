@@ -31,28 +31,27 @@ Data Consistency: Запрет дубликатов в списках избра
 ### 1. Подготовка окружения
 Убедитесь, что у вас установлен `uv`. Клонируйте репозиторий и установите зависимости:
 ```bash
-  uv sync
+uv sync
 ```
 ### 2. Настройка переменных окружения
 Скопируйте пример настроек и создайте свой локальный файл .env:
 ```bash
-  cp .env.example .env
+cp .env.example .env
 ```
 Сгенерируйте свой SECRET_KEY для работы с админкой и вставьте в .env
 ### 3. Миграция базы данных
 ```bash
-uv run python manage.py migrate
+make migrate
 ```
 Загрузите предустановленные жанры из фикстуры
 ```bash
-uv run python manage.py loaddata genres.json
+make load_genres
 ```
 ### 4. Создание администратора
 ```bash
-uc run python manage.py createsuperuser
+make superuser
 ```
 ### 5. Запуск сервера
 ```bash
-uv run python manage.py runserver
+make run
 ```
-**Админка будет доступна по адресу: http://127.0.0.1:8000/admin/**
