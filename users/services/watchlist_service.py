@@ -17,6 +17,6 @@ class WatchListService:
         user_age = profile.age
 
         if user_age <= movie.age_limit:
-            raise AgeLimitError
+            raise AgeLimitError(f"Фильм {movie.title} только для {movie.age_limit}")
 
         return WatchList.objects.create(user=user, movie=movie)
