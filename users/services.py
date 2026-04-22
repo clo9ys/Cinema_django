@@ -1,9 +1,10 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
-from .models import Subscription, UserProfile
+from .models import Subscription, UserProfile, WatchList
 from config.exceptions import AlreadySubscribedError, AgeLimitError
-from .dto import SubscriptionData
+from .dto import SubscriptionData, WatchListData
+from movies.models import Movie
 
 class SubscriptionService:
     @transaction.atomic
