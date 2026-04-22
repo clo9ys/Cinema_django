@@ -2,7 +2,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from .models import Subscription, UserProfile
-from config.exceptions import AlreadySubscribedError
+from config.exceptions import AlreadySubscribedError, AgeLimitError
 from .dto import SubscriptionData
 
 class SubscriptionService:
