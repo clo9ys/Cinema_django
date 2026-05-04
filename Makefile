@@ -1,10 +1,10 @@
 # Быстрые команды для запуска
 
 run_django:
-	uv run python manage.py runserver
+	uv run python django_api/manage.py runserver
 
 run_fastapi:
-	uv run uvicorn search_service.app.main:app --reload --port 8001
+	uv run uvicorn search_service.main:app --reload --port 8001
 
 migrate:
 	uv run python manage.py migrate
