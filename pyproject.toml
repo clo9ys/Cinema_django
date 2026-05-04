@@ -10,9 +10,12 @@ dependencies = [
     "django-stubs>=6.0.1",
     "djangorestframework>=3.16.1",
     "djangorestframework-stubs>=3.16.8",
+    "fastapi>=0.136.1",
+    "httpx>=0.28.1",
     "pytest>=8.4.2",
     "pytest-cov>=4.1",
     "python-dotenv>=1.2.2",
+    "uvicorn>=0.46.0",
 ]
 
 [tool.pytest.ini_options]
