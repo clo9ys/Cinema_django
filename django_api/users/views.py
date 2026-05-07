@@ -6,6 +6,8 @@ from .services.subscription_service import SubscriptionService
 from .models import WatchList
 from .serializers import WatchListSerializer
 from .dto import SubscriptionData
+from movies.models import Movie
+from movies.serializers import MovieSerializer
 
 
 class WatchListViewSet(viewsets.ModelViewSet):
@@ -36,3 +38,26 @@ class UserViewSet(viewsets.ViewSet):
 
         self.sub_service.subscribe_user(dto)
         return Response({"status": "success", "message": "Подписка обновлена"}, status=status.HTTP_200_OK)
+
+
+def recommendations(request, user_id):
+    last_item = (
+        WatchList.objects.filter(user_id=user_id)
+        .select_related("movie")
+        .order_by("-added_at")
+        .first()
+    )
+    if not last_item:
+        return Response([])
+
+    genre_ids = list(
+        last_item.movie.genres.values_list("id", flat=True)
+    )
+    movies = (
+        Movie.objects.filter(genres__id__in=genre_ids)
+        .exclude(id=last_item.movie_id)
+        .prefetch_related("genres")
+        .distinct()
+        .order_by("id")
+    )
+    return Response(MovieSerializer(movies, many=True).data)
