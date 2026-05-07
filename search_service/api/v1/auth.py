@@ -16,15 +16,31 @@ FAKE_USERS_DB = {
     }
 }
 
-@router.post("/login", response_model=Token)
+@router.post(
+    "/login",
+    response_model=Token,
+    responses={
+        200: {"description": "Успешная авторизация"},
+        401: {"description": "Неверный пароль"},
+        404: {"description": "Пользователь не найден"},
+    },
+)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User).where(User.username == form_data.username))
     user = result.scalars().first()
 
-    if not user or not verify_password(form_data.password, user.password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Неверный логин или пароль",
-                            headers={"WWW-Authenticate": "Bearer"},)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Пользователь не найден",
+        )
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверный логин или пароль",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     access_token = create_access_token(data={"sub": user.username})
 
@@ -33,7 +49,15 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         "refresh_token": "refresh-token",
         "token_type": "bearer",
     }
-@router.get("/me", response_model=UserRead)
+@router.get(
+    "/me",
+    response_model=UserRead,
+    responses={
+        200: {"description": "Текущий пользователь"},
+        401: {"description": "Неавторизован"},
+        404: {"description": "Пользователь не найден"},
+    },
+)
 async def get_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
