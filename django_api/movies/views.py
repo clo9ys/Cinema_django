@@ -1,3 +1,6 @@
+from asgiref.sync import sync_to_async
+from django.db.models import Q
+from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
 
@@ -76,3 +79,21 @@ class GenreViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         genre_service.delete_genre(self.kwargs["pk"])
         return Response(status=204)
+
+
+async def search_movies(request):
+    q = request.GET.get("q", "").strip()
+    if not q:
+        return JsonResponse(
+            {"detail": "Параметр q обязателен"},
+            status=400,
+        )
+    movies = await sync_to_async(list)(
+        movie_service.get_movie_list_queryset().filter(
+            Q(title__icontains=q) | Q(summary__icontains=q)
+        )
+    )
+    data = await sync_to_async(
+        lambda: MovieSerializer(movies, many=True).data
+    )()
+    return JsonResponse(data, safe=False)

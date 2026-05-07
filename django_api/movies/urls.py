@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import GenreViewSet, MovieViewSet
+from .views import GenreViewSet, MovieViewSet, search_movies
 
 router = DefaultRouter()
 router.register('movies', MovieViewSet, basename='movie')
@@ -9,4 +9,5 @@ router.register('genres', GenreViewSet, basename='genre')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('search/', search_movies, name='movie-search'),
 ]

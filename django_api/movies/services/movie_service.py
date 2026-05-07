@@ -3,6 +3,7 @@ from datetime import date
 from rest_framework.exceptions import ValidationError
 
 from ..dto import MovieCreateDTO, MovieUpdateDTO
+
 from ..models import Genre, Movie
 
 
