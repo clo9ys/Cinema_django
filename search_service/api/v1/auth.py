@@ -6,6 +6,7 @@ from search_service.core.database import get_db
 from search_service.core.security import create_access_token, verify_password, get_current_user
 from search_service.models.user import User
 from search_service.schemas.auth import Token, UserRead
+from search_service.core.logger import logger
 
 router = APIRouter()
 
@@ -30,12 +31,14 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     user = result.scalars().first()
 
     if not user:
+        logger.warning(f"ошибка входа: пользователь {form_data.username} не найден")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Пользователь не найден",
         )
 
     if not verify_password(form_data.password, user.password):
+        logger.warning(f"ошибка входа: неверный пароль для пользователя {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверный логин или пароль",
@@ -43,6 +46,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
         )
 
     access_token = create_access_token(data={"sub": user.username})
+    logger.info(f"пользователь {user.username} успешно вошел в систему")
 
     return {
         "access_token": access_token,
