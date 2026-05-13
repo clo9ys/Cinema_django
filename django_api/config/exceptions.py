@@ -1,5 +1,6 @@
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
+from .logger import logger
 
 class ApplicationError(Exception):
     """Базовый класс для всех бизнес-ошибок"""
@@ -21,6 +22,9 @@ ERROR_MAP = {
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
+
+    # логируем саму ошибку
+    logger.error(f"ошибка: {exc}, контекст: {context.get('view')}")
 
     if isinstance(exc, ApplicationError):
         status_code, internal_code = ERROR_MAP.get(exc.__class__.__name__, (400, "APP_ERROR"))

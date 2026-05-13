@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.response import Response
+from config.logger import logger
 
 from .dto import GenreCreateDTO, GenreUpdateDTO
 from .filters import MovieFilter
@@ -88,6 +89,10 @@ async def search_movies(request):
             {"detail": "Параметр q обязателен"},
             status=400,
         )
+
+    # логируем поисковый запрос
+    logger.info(f"поиск фильма по запросу: {q}")
+
     movies = await sync_to_async(list)(
         movie_service.get_movie_list_queryset().filter(
             Q(title__icontains=q) | Q(summary__icontains=q)
