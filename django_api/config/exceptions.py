@@ -13,6 +13,9 @@ class AlreadySubscribedError(ApplicationError):
 class AgeLimitError(ApplicationError):
     pass
 
+class ObjectNotFoundError(ApplicationError):
+    pass
+
 ERROR_MAP = {
     "AlreadySubscribedError": (409, "ALREADY_HAS_SUBSCRIPTION"),
     "AgeLimitError": (403, "AGE_RESTRICTION"),

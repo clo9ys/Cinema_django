@@ -1,12 +1,13 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel
 
 from search_service.api.v1.auth import router as auth
 from search_service.core.database import get_db
-from search_service.models.movie import MovieModel  # Наша SQLAlchemy модель
-from search_service.core.logger import logger  # Твой логгер
+from search_service.core.security import get_current_user
+from search_service.models.movie import MovieModel
+from search_service.schemas.movie import MovieNotify, SearchResponse
+from search_service.core.logger import logger
 
 api_router = APIRouter()
 
@@ -17,47 +18,29 @@ async def save_search_history(user_id: int, query: str):
     logger.info(f"юзер {user_id} искал '{query}'")
 
 
-class MovieNotify(BaseModel):
-    id: int
-    title: str
-    release_year: int
-    summary: str
-    duration_minutes: int
-    age_limit: int
-
 @api_router.post("/movies/notify", status_code=200, tags=["Movies"])
 async def notify_new_movie(movie: MovieNotify):
-    """
-    Эндпоинт для получения уведомлений от Django о новых фильмах.
-    """
     logger.info(f"получено уведомление о новом фильме: '{movie.title}' (ID: {movie.id})")
     return {"status": "ok", "message": "уведомление принято"}
 
 
-@api_router.get("/search")
+@api_router.get("/search", response_model=SearchResponse, tags=["Search"])
 async def search(
         query: str = Query(..., min_length=1, description="Строка для поиска фильма"),
         background_tasks: BackgroundTasks = BackgroundTasks(),
         session: AsyncSession = Depends(get_db),
-        current_user=Depends(get_current_user)
+        current_user=Depends(get_current_user),
 ):
     stmt = select(MovieModel).where(MovieModel.title.icontains(query)).limit(20)
     result = await session.execute(stmt)
-
     movies_db = result.scalars().all()
-
-    search_results = {
-        "query": query,
-        "results": [
-            {
-                "id": movie.id,
-                "title": movie.title,
-                "release_year": movie.release_year,
-                "summary": movie.summary
-            } for movie in movies_db
-        ]
-    }
 
     background_tasks.add_task(save_search_history, user_id=current_user.id, query=query)
 
-    return search_results
+    return {
+        "query": query,
+        "results": [
+            {"id": m.id, "title": m.title, "release_year": m.release_year, "summary": m.summary}
+            for m in movies_db
+        ],
+    }

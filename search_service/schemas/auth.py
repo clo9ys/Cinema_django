@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=25, description="имя пользователя")
@@ -22,12 +22,11 @@ class TokenData(BaseModel):
 
 
 class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int = Field(..., example=1)
     username: str = Field(..., example="admin")
     email: EmailStr | None = Field(None, example="admin-cinema@gmail.com")
-
-    class Meta:
-        from_attributes = True
 
 
 class RootResponse(BaseModel):
