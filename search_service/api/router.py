@@ -1,6 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from pydantic import BaseModel
 
 from search_service.api.v1.auth import router as auth
 from search_service.core.database import get_db
@@ -14,6 +15,23 @@ api_router.include_router(auth, prefix="/auth", tags=["Authentication"])
 
 async def save_search_history(user_id: int, query: str):
     logger.info(f"юзер {user_id} искал '{query}'")
+
+
+class MovieNotify(BaseModel):
+    id: int
+    title: str
+    release_year: int
+    summary: str
+    duration_minutes: int
+    age_limit: int
+
+@api_router.post("/movies/notify", status_code=200, tags=["Movies"])
+async def notify_new_movie(movie: MovieNotify):
+    """
+    Эндпоинт для получения уведомлений от Django о новых фильмах.
+    """
+    logger.info(f"получено уведомление о новом фильме: '{movie.title}' (ID: {movie.id})")
+    return {"status": "ok", "message": "уведомление принято"}
 
 
 @api_router.get("/search")
